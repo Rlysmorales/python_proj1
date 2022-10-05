@@ -14,8 +14,11 @@ def load_data(file_path):
 
 def welcome_message():
     """Prints the welcome message at the start of the program"""
-    print("Welcome to Mike's Craft Beer Tracker. \n Log and rate what beer you had at every Brewery you have Visited.")
-    print("Search the brewery you have been to by name.\n ")
+    os.system("clear")
+    print("="*70)
+    print("Welcome to Mike's Craft Beer Tracker.")
+    print("Log and rate what beer you had at every brewery you have visited.")
+    print("="*70)
 
 def prompt_legalAge():
 
@@ -25,12 +28,13 @@ def prompt_legalAge():
         return prompt_legalAge()
     elif legalAge <= 20:
         print("Access denied: You have to be older than 21 to access the application \n")
-        raise Exception("Please come back when you're 21.")
+        exit()
     else: 
         return legalAge
 
 def prompt_breweryname():
     """prompt user for the brewery. Validates if the user enter a valid input"""
+    os.system("clear")
     breweryName = input("Enter the name of the Brewery you have visited: \n")
     
     if (len(breweryName) == 0):
@@ -42,7 +46,8 @@ def prompt_breweryname():
 def api_call(breweryName):
     """Once the user enters the name of a valid Brewery the Api gets the information from the Brewery."""
     #TODO Review lab 55 Define our "base" API
-    API_ENDPOINT = f"https://api.openbrewerydb.org/breweries?by_name={breweryName}&per_page=5"
+    #TODO: Possibly implement pagination to get more than 10 results
+    API_ENDPOINT = f"https://api.openbrewerydb.org/breweries?by_name={breweryName}&per_page=10"
    
     response = requests.get(API_ENDPOINT)
     results = json.loads(response.content)
@@ -71,16 +76,18 @@ def get_correct_brewery_name(results):
 def add_brewery_to_brewery_data(brewery_data, brewery_add_data):
     """create a dictionary to store one brewery's data"""
     
-    brewery_data[brewery_add_data["id"]] = {
-        "name": brewery_add_data["name"],
-        "city": brewery_add_data["city"],
-        "state": brewery_add_data["state"],
-        "ratings": [],
-    }
-    #this should return brewery_data
+    if brewery_add_data["id"] not in brewery_data:
+        brewery_data[brewery_add_data["id"]] = {
+            "name": brewery_add_data["name"],
+            "city": brewery_add_data["city"],
+            "state": brewery_add_data["state"],
+            "ratings": [],
+        }
+    return brewery_data
 
 def what_type_of_beer_did_you_have():
     """ This function ask the user the name of the beer they had at the brewery.""" 
+    os.system("clear")
     beer_type = input("What is the name of the beer you had? \n")
     if (len(beer_type) == 0):
         print("Invalid Input. Please enter what is the name of the beer you had\n")
@@ -89,8 +96,11 @@ def what_type_of_beer_did_you_have():
         return beer_type
 
 def what_do_you_rate_this_beer():
-    """How the user would rate his beer with a rating of 1 being your least favorite and rating of 5 being a most have again. 
-        Had the user validation less than 0 and more than 6. However is the user typed 1.5 it broke the app. The try and except mitigated that."""
+    """
+    How the user would rate his beer with a rating of 1 being your least favorite and rating of 5 being a most have again. 
+    Had the user validation less than 0 and more than 6. However is the user typed 1.5 it broke the app. The try and except mitigated that.
+    """
+    os.system("clear")
     try:
         rate_beer = int(input("From 1 to 5 how would you rate the beer? \n"))
     except ValueError:
@@ -121,8 +131,8 @@ def rate_beer(brewery_data):
     breweryname = prompt_breweryname()
     results = api_call(breweryname)
     brewery_add_data = get_correct_brewery_name(results)
-    add_brewery_to_brewery_data(brewery_data, brewery_add_data)
-    add_ratings_to_brewery_data(brewery_data, brewery_add_data)
+    brewery_data = add_brewery_to_brewery_data(brewery_data, brewery_add_data)
+    brewery_data = add_ratings_to_brewery_data(brewery_data, brewery_add_data)
     write_the_rating_to_file(brewery_data)
     rate_again = input("do you want to rate beer at another brewery? (yes/no) \n")
     if rate_again == "yes":
