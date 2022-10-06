@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import requests
 import json
 import os
@@ -142,7 +141,7 @@ def print_brewery(brewery_name):
 def what_type_of_beer_did_you_have(brewery_name):
     """This function ask the user the name of the beer they had at the brewery."""
     print_brewery(brewery_name)
-    beer_type = input(f"What is the name of the beer you had? \n")
+    beer_type = input("What is the name of the beer you had? \n")
     if len(beer_type) == 0:
         print(
             "Your input is too short. Please enter what is the name of the beer you had\n"
